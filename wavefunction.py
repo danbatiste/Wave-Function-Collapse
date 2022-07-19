@@ -204,17 +204,20 @@ if __name__ == "__main__":
     ])
 
     # Load the input img or array
+    print("Loading input array..")
     input_array = load_image("1658243361.jpg")
     print(input_array, input_array.shape)
     radius = 1
     rules = rules_from_array(input_array, radius=radius)
     
     # Get all characters and create the canvas of uncollapsed cells
+    print("Creating canvas..")
     characters = frozenset(np.unique(input_array))
     shape = (10, 10) # shape of extended array
     canvas = np.full(shape, characters) # initialize array of sets of possible characters
 
     # collapse cell by cell until entire thing is collapsed
+    print("Collapsing cells..")
     last_canvas = canvas
     while not is_collapsed(canvas):
         last_canvas = canvas
@@ -223,9 +226,13 @@ if __name__ == "__main__":
         except ContradictionError:
             canvas = last_canvas
 
-    canvas = np.array(canvas) # convert tuples to arrays
+    # Convert result to an image
+    print("Converting result to image..")
+    print(canvas, type(canvas))
+    canvas = [[[e for e in rgb] for rgb in row] for row in canvas] # convert tuples to arrays
+    canvas = np.array(canvas, dtype=np.int)
+    print(canvas, canvas.dtype, type(canvas), type(canvas[0]), type(canvas[0][0]), type(canvas[0][0][0]))
     img = Image.fromarray(canvas)
-    img = img.convert("RGB")
     img = img.resize(np.array(canvas.shape)*20, Image.Transform.AFFINE)
     img.save(str(int(time.time())) + ".jpg")
     img.show()
